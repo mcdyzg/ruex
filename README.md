@@ -15,9 +15,8 @@ Use vuex in react
 [coveralls-badge]: https://img.shields.io/coveralls/user/repo/master.png?style=flat-square
 [coveralls]: https://coveralls.io/github/user/repo
 
-## Usage
+## Demo
 
-demo:
 ```js
 npm install
 npm start
@@ -27,3 +26,7 @@ npm start
 
 1. middleware
 2. namespace
+
+## API
+
+> https://vuex.vuejs.org/zh-cn/core-concepts.html
