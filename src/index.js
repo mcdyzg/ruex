@@ -1,9 +1,9 @@
-import React, {Component} from 'react'
+import createStore from './createStore'
+import Provider from './Provider'
+import connect from './connect'
 
-export default class extends Component {
-  render() {
-    return <div>
-      <h2>Welcome to React components</h2>
-    </div>
-  }
+export {
+    connect,
+    Provider,
+    createStore,
 }
