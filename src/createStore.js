@@ -1,9 +1,12 @@
 import produce from "immer";
+import compose from './compose'
 
-export default function createStore(module) {
+export default function createStore(module,middleWares) {
     let currentState = {}
     let mutationsMap = {}
     let actionsMap = {}
+    // 中间件
+    let middlewares = middleWares || []
 
     // 初始state
     currentState = getInitState(module)
@@ -124,6 +127,22 @@ export default function createStore(module) {
         }
     }
 
+
+    // 将中间件注册到mutations上
+    if(middlewares && middlewares.length !== 0) {
+        const middlewareAPI = {
+            getState,
+            commit,
+        }
+
+        let chain = []
+        chain = middlewares.map(function (middleware) {
+            // 此处middleware处于闭包中，所以middleware.dispatch保存的一直都是最原始的store.dispatch方法。也就是说不论是异步还是同步的action,都只能触发原始的store.dispatch,并且会重新执行一遍所有的中间件
+          return middleware(middlewareAPI);
+        });
+        // let _commit = commit
+        commit = compose.apply(undefined,chain)(commit)
+    }
 
 
     // 获取最新的state

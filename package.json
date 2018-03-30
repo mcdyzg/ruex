@@ -1,6 +1,6 @@
 {
   "name": "ruex",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ruex React component",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -30,10 +30,10 @@
     "prop-types": "^15.6.1",
     "react-dom": "^16.2.0"
   },
-  "author": "",
+  "author": "mcdyzg",
   "homepage": "",
   "license": "MIT",
-  "repository": "",
+  "repository": "https://github.com/mcdyzg/ruex",
   "keywords": [
     "react-component"
   ]

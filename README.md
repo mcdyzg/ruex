@@ -24,9 +24,12 @@ npm start
 
 ## TODO
 
-1. middleware
-2. namespace
+1. namespace
 
 ## API
 
 > https://vuex.vuejs.org/zh-cn/core-concepts.html
+
+## CHANGELOG
+
+- 1.0.1:support middleware

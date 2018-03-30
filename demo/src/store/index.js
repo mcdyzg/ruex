@@ -43,6 +43,16 @@ const actions = {
 }
 
 
+// middleware
+const logger = (store) => (next) => (mutation,payload) =>{
+    console.group('触发mutation前',store.getState())
+    let result = next(mutation,payload)
+    console.log('触发mutation后', store.getState())
+	console.groupEnd()
+    // return result
+}
+
+
 const store = createStore({
     state,
 	mutations,
@@ -51,6 +61,6 @@ const store = createStore({
         user,
         counter,
     }
-})
+},[logger])
 
 export default store
