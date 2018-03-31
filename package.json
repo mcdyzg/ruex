@@ -1,6 +1,6 @@
 {
   "name": "ruex",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ruex React component",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -19,6 +19,8 @@
     "test:watch": "nwb test-react --server"
   },
   "dependencies": {
+      "prop-types": "^15.6.1",
+      "immer": "^1.2.1"
   },
   "peerDependencies": {
     "react": "16.x"
@@ -26,8 +28,6 @@
   "devDependencies": {
     "nwb": "0.21.x",
     "react": "^16.2.0",
-    "immer": "^1.2.1",
-    "prop-types": "^15.6.1",
     "react-dom": "^16.2.0"
   },
   "author": "mcdyzg",
