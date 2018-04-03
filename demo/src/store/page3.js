@@ -1,18 +1,13 @@
-import {createStore} from '../../../src'
-import counter from './counter'
-import user from './user'
-import page3 from './page3'
-
 const state = {
-	total_num:1111,
+	page3_num:5555
 }
 
 const mutations = {
-	add(state,payload){
-		state.total_num += payload
-	},
 	double(state,payload){
-		state.total_num = state.total_num*payload
+		state.page3_num = state.page3_num*payload
+	},
+	add(state,payload){
+		state.page3_num += payload
 	},
 }
 
@@ -43,26 +38,8 @@ const actions = {
 	},
 }
 
-
-// middleware
-const logger = (store) => (next) => (mutation,payload) =>{
-    console.group('触发mutation前',store.getState())
-    let result = next(mutation,payload)
-    console.log('触发mutation后', store.getState())
-	console.groupEnd()
-    // return result
-}
-
-
-const store = createStore({
-    state,
-	mutations,
+export default {
 	actions,
-    modules:{
-        user,
-        counter,
-		page3,
-    }
-},[logger])
-
-export default store
+	mutations,
+	state
+}

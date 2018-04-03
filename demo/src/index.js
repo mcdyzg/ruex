@@ -1,8 +1,10 @@
 import React, {PureComponent,Component} from 'react'
 import Page2 from './Page2'
+import Page3 from './Page3'
 import store from './store'
 import {Provider} from '../../src'
 import {render} from 'react-dom'
+import {HashRouter as Router,Route} from 'react-router-dom'
 
 
 class Demo extends PureComponent {
@@ -18,9 +20,12 @@ class Demo extends PureComponent {
 	render() {
 		return (
 		<Provider store={store}>
-			<div>
-				<Page2 />
-			</div>
+			<Router>
+				<div>
+					<Route exact path='/' component={Page2} />
+					<Route path='/page3' component={Page3} />
+				</div>
+			</Router>
 		</Provider>
 		)
 	}

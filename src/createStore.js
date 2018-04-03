@@ -87,10 +87,34 @@ export default function createStore(module,middleWares) {
         }
     }
 
+    function ensureCanMutateNextListeners() {
+      if (nextListeners === currentListeners) {
+        nextListeners = currentListeners.slice();
+      }
+    }
+
     // 定义监听数组
-    let listeners = []
+    var currentListeners = [];
+    var nextListeners = currentListeners;
     function subscribe(callback){
-        listeners.push(callback)
+        // 本方法会形成一个闭包，所以isSubscribed这个变量会一直保存
+        var isSubscribed = true;
+
+        ensureCanMutateNextListeners();
+        nextListeners.push(callback);
+
+        return function unsubscribe() {
+            if (!isSubscribed) {
+                return;
+            }
+
+            isSubscribed = false;
+
+            ensureCanMutateNextListeners();
+            var index = nextListeners.indexOf(callback);
+            nextListeners.splice(index, 1);
+        };
+
     }
 
     // 触发mutations
@@ -104,6 +128,7 @@ export default function createStore(module,middleWares) {
                 })
             }
         })
+        var listeners = currentListeners = nextListeners;
         // 触发监听
         listeners.forEach(cb=>{
             cb(currentState)

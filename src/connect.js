@@ -46,12 +46,24 @@ const IIHoc = (mapStateToProps,mapMutationsToProps,mapActionsToProps) => (WrapCo
             const t = this
             function callback(state){
                 // 因为使用了immer，所以全局store无论多深层级，只要有变化，就返回新对象，否则返回原对象，immer做了类似vue对象遍历的工作。
-                if(t.previousStore !== state) {
-                    t.previousStore = state
-                    t.setState(mapStateToProps(state))
-                }
+                t.onStateChange(state)
             }
-            this.store.subscribe(callback)
+            // 由于子组件的compoenntDidMount在connect的compoenntDidMount之前，因此如果子组件在DidMount里执行了dispatch，那么其实本方法里的subscribe的callback是没有执行的，因为subscribe在dispatch之后执行，解决方法是在本DidMount后执行一遍onStateChange方法，如果state有改变，执行setState，如果没有改变，不执行。
+            let newState = t.store.getState()
+            this.onStateChange(newState)
+            this.unsubscribe = this.store.subscribe(callback)
+        }
+
+        onStateChange(newState){
+            const t = this
+            if(t.previousStore !== newState) {
+                t.previousStore = newState
+                t.setState(mapStateToProps(newState))
+            }
+        }
+
+        componentWillUnmount(){
+            this.unsubscribe()
         }
 
         render(){

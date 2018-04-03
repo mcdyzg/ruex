@@ -2,38 +2,26 @@ import React, {PureComponent,Component} from 'react'
 import {connect} from '../../src'
 import {Link} from 'react-router-dom'
 
-class Page2 extends Component {
+class Page3 extends Component {
 	state = {}
 	constructor(props) {
         super(props);
     }
 
-	componentDidMount(){
-		console.log('child did mount')
-		this.props.add(1)
-	}
-
 	render() {
 		const {
-			user,
 			counter,
-			total_num,
+			page3,
 		} = this.props
 		return (
 		<div className=''>
 
 			<br/><br/><br/><br/>
 			<div className="">
-			    user上的user_num:{user.user_num}
+			    page3上的page3_num:{page3.page3_num}
 			</div>
 			<div className="">
 			    counter上的counter_num:{counter.counter_num}
-			</div>
-			<div className="">
-			    全局的total_num: {total_num}
-			</div>
-			<div className="">
-			    book上的book_num:{user.book.book_num}
 			</div>
 
 			<button onClick={this.props.add.bind(this,1)}>mutation:add</button>
@@ -46,8 +34,9 @@ class Page2 extends Component {
 
 
 
+
 			<br/><br/><br/><br/>
-			<Link to='/page3'>next page</Link>
+			<Link to='/'>previous page</Link>
 		</div>)
 	}
 }
@@ -55,8 +44,7 @@ class Page2 extends Component {
 
 const mapStateToProps = (state) => ({
   	counter: state.counter,
-    user:state.user,
-	total_num:state.total_num,
+	page3:state.page3,
 })
 
 // const mapMutationsToProps = {
@@ -74,5 +62,5 @@ export default connect(
     mapStateToProps,
     mapMutationsToProps,
     mapActionsToProps,
-)(Page2)
+)(Page3)
 // export default Page2

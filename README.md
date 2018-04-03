@@ -162,3 +162,7 @@ npm start
 - 1.0.1:support middleware
 
 - 1.0.2:add dependencies
+
+- 1.0.3:
+    - add unsubscribe when emit componentWillUnmount.
+    - 修复在组件componentDidMount里触发action无法获取到最新数据的问题。
