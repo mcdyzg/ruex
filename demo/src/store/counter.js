@@ -4,7 +4,6 @@ const state = {
 
 const mutations = {
 	add(state, payload) {
-		console.log(payload, 11111111)
 		state.counter_num += payload
 	},
 	double(state, payload) {

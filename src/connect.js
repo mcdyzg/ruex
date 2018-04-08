@@ -43,7 +43,7 @@ const IIHoc = (
 			} else if (isArray(args)) {
 				args.forEach(key => {
 					newMuta[key] = payload => {
-						t.store[type]([key], payload)
+						t.store[type](key, payload)
 					}
 				})
 			}

@@ -112,16 +112,18 @@ const mapStateToProps = state => ({
 // }
 const mapMutationsToProps = ['add', 'double']
 
-// const mapActionsToProps = {
-// 	addAsync:'addAsync',
-// 	addPromise:'addPromise'
-// }
-const mapActionsToProps = [
-	'addAsync',
-	'addPromise',
-	'doubleAsync',
-	'doublePromise',
-]
+const mapActionsToProps = {
+	addAsync: 'counter/addAsync',
+	addPromise: 'counter/addPromise',
+	doubleAsync: 'doubleAsync',
+	doublePromise: 'doublePromise',
+}
+// const mapActionsToProps = [
+// 	'addAsync',
+// 	'addPromise',
+// 	'doubleAsync',
+// 	'doublePromise',
+// ]
 
 export default connect(mapStateToProps, mapMutationsToProps, mapActionsToProps)(
 	Page2,

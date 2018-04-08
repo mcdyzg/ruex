@@ -106,6 +106,11 @@ export default function createStore(module, middleWares) {
 	// 添加新注册的module
 	function registerModule(moduleName, addModule) {
 		module.modules[moduleName] = addModule
+
+		currentState = {}
+		mutationsMap = {}
+		actionsMap = {}
+
 		// 初始state
 		currentState = getInitState(module)
 
@@ -141,7 +146,8 @@ export default function createStore(module, middleWares) {
 
 	// 触发mutations
 	function commit(type, payload) {
-		// counter/add ==> add
+		// counter/add ==> counter/ + add
+		const _contextPath = type.slice(0, type.indexOf('/') + 1)
 		const _type = type.slice(type.lastIndexOf('/') + 1)
 		currentState = produce(currentState, copyState => {
 			if (
@@ -151,13 +157,19 @@ export default function createStore(module, middleWares) {
 			) {
 				let mutas = mutationsMap[_type]
 				mutas.forEach(item => {
+					if (!_contextPath) {
+						let _state = getStateByContext(item.context, copyState)
+						item.handler(_state, payload)
+						return
+					}
+
 					// 需要commit的全称与mutation的上下文对上才能执行
-					// let wholePath = item.context.join('/') + '/' + _type
-					// // console.log(wholePath, type, 2222)
-					// if (wholePath === type) {
-					let _state = getStateByContext(item.context, copyState)
-					item.handler(_state, payload)
-					// }
+					let contextPath = item.context.join('/')
+					let wholePath = contextPath + '/' + _type
+					if (wholePath === type) {
+						let _state = getStateByContext(item.context, copyState)
+						item.handler(_state, payload)
+					}
 				})
 			}
 		})
@@ -170,20 +182,54 @@ export default function createStore(module, middleWares) {
 
 	// 触发actions
 	function dispatch(type, payload) {
+		// counter/addAsync ==> counter/ + addAsync
+		const _contextPath = type.slice(0, type.indexOf('/') + 1)
 		const _type = type.slice(type.lastIndexOf('/') + 1)
+
 		if (_type && actionsMap[_type] && actionsMap[_type].length !== 0) {
 			let actions = actionsMap[_type]
 			actions.forEach(item => {
-				let state = getStateByContext(item.context, currentState)
-				item.handler(
-					{
-						state,
-						commit,
-						dispatch,
-						rootState: currentState,
-					},
-					payload,
-				)
+				if (!_contextPath) {
+					let _state = getStateByContext(item.context, currentState)
+					item.handler(
+						{
+							_state,
+							commit,
+							dispatch,
+							rootState: currentState,
+						},
+						payload,
+					)
+					return
+				}
+
+				// 需要commit的全称与mutation的上下文对上才能执行
+				let contextPath = item.context.join('/')
+				let wholePath = contextPath + '/' + _type
+				if (wholePath === type) {
+					// 如果模块有命名空间，那么在模块内部只需要给commit和dispatch本模块的方法就能实现自动加前缀的功能，例如 commit('add')==>commit('counter/add')
+					let __commit, __dispatch
+					if (item.namespaced) {
+						__commit = function(__type, __payload) {
+							console.log(contextPath + '/' + __type, 123123)
+							commit(contextPath + '/' + __type, __payload)
+						}
+						__dispatch = function(__type, __payload) {
+							dispatch(contextPath + '/' + __type, __payload)
+						}
+					}
+
+					let _state = getStateByContext(item.context, currentState)
+					item.handler(
+						{
+							_state,
+							commit: item.namespaced ? __commit : commit,
+							dispatch: item.namespaced ? __dispatch : dispatch,
+							rootState: currentState,
+						},
+						payload,
+					)
+				}
 			})
 		}
 	}
