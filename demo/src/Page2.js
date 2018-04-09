@@ -44,6 +44,9 @@ store.registerModule('addModule', {
 		},
 	},
 })
+// 注意unregisterMudole因为是同步的，所以一定要确保没有组件会用到unregister的module。
+// store.unregisterMudole('addModule')
+
 class Page2 extends Component {
 	state = {}
 	constructor(props) {
@@ -106,11 +109,22 @@ const mapStateToProps = state => ({
 	addModule: state.addModule,
 })
 
-// const mapMutationsToProps = {
-// 	add: 'counter/add',
-// 	double: 'double',
+// 方式一：
+// const mapStateToProps = (state, ownProps) => {
+// 	return {
+// 		add: 'counter/add',
+// 	}
 // }
-const mapMutationsToProps = ['add', 'double']
+
+// 方式二：
+// const mapMutationsToProps = ['add', 'double']
+
+// 方式三：
+// counter已经指定namespaced=true，因此调用counter/add会只执行counter的add，如果counter没指定namespaced，那么counter/add是无效的
+const mapMutationsToProps = {
+	add: 'counter/add',
+	double: 'double',
+}
 
 const mapActionsToProps = {
 	addAsync: 'counter/addAsync',

@@ -107,12 +107,32 @@ export default function createStore(module, middleWares) {
 	function registerModule(moduleName, addModule) {
 		module.modules[moduleName] = addModule
 
-		currentState = {}
+		let addModuleState = getInitState(addModule)
+
+		currentState = produce(currentState, copyState => {
+			copyState[moduleName] = addModuleState
+		})
+
 		mutationsMap = {}
 		actionsMap = {}
 
-		// 初始state
-		currentState = getInitState(module)
+		// 初始化mutations
+		getMutationsMap(module, [])
+
+		// 初始化actions
+		getActionsMap(module, [])
+	}
+
+	// 将模块从总模块中注销掉
+	function unregisterMudole(moduleName, addModule) {
+		if (!module.modules[moduleName]) return
+
+		currentState = produce(currentState, copyState => {
+			copyState[moduleName] = {}
+		})
+
+		mutationsMap = {}
+		actionsMap = {}
 
 		// 初始化mutations
 		getMutationsMap(module, [])
@@ -157,19 +177,40 @@ export default function createStore(module, middleWares) {
 			) {
 				let mutas = mutationsMap[_type]
 				mutas.forEach(item => {
-					if (!_contextPath) {
-						let _state = getStateByContext(item.context, copyState)
-						item.handler(_state, payload)
-						return
-					}
-
-					// 需要commit的全称与mutation的上下文对上才能执行
+					// 如果有namespaced，需要commit的全称与mutation的上下文对上才能执行mutation。如果没有，那么分两种情况：如果type不带context全路径，那么需要执行mutation。如果type带context路径，本mutation也不需要执行
 					let contextPath = item.context.join('/')
 					let wholePath = contextPath + '/' + _type
-					if (wholePath === type) {
-						let _state = getStateByContext(item.context, copyState)
-						item.handler(_state, payload)
+					if (item.namespaced) {
+						if (type === wholePath) {
+							let state = getStateByContext(
+								item.context,
+								copyState,
+							)
+							item.handler(state, payload)
+						}
+					} else {
+						if (!_contextPath) {
+							let state = getStateByContext(
+								item.context,
+								copyState,
+							)
+							item.handler(state, payload)
+						}
 					}
+
+					// if (!_contextPath) {
+					// 	let _state = getStateByContext(item.context, copyState)
+					// 	item.handler(_state, payload)
+					// 	return
+					// }
+					//
+					// // 需要commit的全称与mutation的上下文对上才能执行
+					// let contextPath = item.context.join('/')
+					// let wholePath = contextPath + '/' + _type
+					// if (wholePath === type) {
+					// 	let _state = getStateByContext(item.context, copyState)
+					// 	item.handler(_state, payload)
+					// }
 				})
 			}
 		})
@@ -190,10 +231,10 @@ export default function createStore(module, middleWares) {
 			let actions = actionsMap[_type]
 			actions.forEach(item => {
 				if (!_contextPath) {
-					let _state = getStateByContext(item.context, currentState)
+					let state = getStateByContext(item.context, currentState)
 					item.handler(
 						{
-							_state,
+							state,
 							commit,
 							dispatch,
 							rootState: currentState,
@@ -211,7 +252,6 @@ export default function createStore(module, middleWares) {
 					let __commit, __dispatch
 					if (item.namespaced) {
 						__commit = function(__type, __payload) {
-							console.log(contextPath + '/' + __type, 123123)
 							commit(contextPath + '/' + __type, __payload)
 						}
 						__dispatch = function(__type, __payload) {
@@ -219,10 +259,10 @@ export default function createStore(module, middleWares) {
 						}
 					}
 
-					let _state = getStateByContext(item.context, currentState)
+					let state = getStateByContext(item.context, currentState)
 					item.handler(
 						{
-							_state,
+							state,
 							commit: item.namespaced ? __commit : commit,
 							dispatch: item.namespaced ? __dispatch : dispatch,
 							rootState: currentState,
@@ -261,11 +301,12 @@ export default function createStore(module, middleWares) {
 		commit,
 		dispatch,
 		registerModule,
+		unregisterMudole,
 	}
 }
 
 function getInitState(module) {
-	let state = module.state
+	let state = Object.assign({}, module.state)
 	let subModule = module.modules
 	if (subModule) {
 		Object.keys(subModule).forEach(item => {

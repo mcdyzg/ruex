@@ -28,7 +28,7 @@ const IIHoc = (
 				mapActionsToProps,
 				'dispatch',
 			)
-			this.state = mapStateToProps(this.previousStore)
+			this.state = mapStateToProps(this.previousStore, this.props)
 		}
 
 		transMutaOrActionToProps(args, type) {
@@ -44,6 +44,13 @@ const IIHoc = (
 				args.forEach(key => {
 					newMuta[key] = payload => {
 						t.store[type](key, payload)
+					}
+				})
+			} else if (typeof args === 'function') {
+				let _argObj = args(t.props)
+				Object.keys(_argObj).forEach(function(key) {
+					newMuta[key] = function(payload) {
+						t.store[type](_argObj[key], payload)
 					}
 				})
 			}
@@ -70,7 +77,7 @@ const IIHoc = (
 			const t = this
 			if (t.previousStore !== newState) {
 				t.previousStore = newState
-				t.setState(mapStateToProps(newState))
+				t.setState(mapStateToProps(newState, t.props))
 			}
 		}
 
@@ -79,7 +86,12 @@ const IIHoc = (
 		}
 
 		render() {
-			const total = { ...this.state, ...this.mutations, ...this.actions }
+			const total = {
+				...this.props,
+				...this.state,
+				...this.mutations,
+				...this.actions,
+			}
 			return <WrapComponent {...total} />
 		}
 	}
